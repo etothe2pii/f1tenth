@@ -23,14 +23,13 @@ public:
 
 private:
 	// PID CONTROL PARAMS
+	// Not bad... kp = 3.0, kd = 0.5, ki = 0.01;
 	double kp = 3.0;
-	double kd = 1.0;
+	double kd = 0.5;
 	double ki = 0.01;
 	double servo_offset = 0.0;
 	double prev_error = 0.0;
 	double prev_V_theta = 0.0;
-	double new_V_theta = 0.0;
-	double error = 0.0;
 	double integral = 0.0;
 	const double TARGET = 1.0;
 	const double AC = 1.5;
@@ -38,6 +37,7 @@ private:
 	bool turn_right = true;
 	double error_array[INTEGRAL_ARR_SIZE];
 	int error_i = 0;
+	bool run_controller;
 
 	// ROS things
 	std::string lidarscan_topic = "/scan";
@@ -61,105 +61,115 @@ WallFollow::WallFollow() : Node("wall_follow_node") {
 	m_drivePub = create_publisher<ackermann_msgs::msg::AckermannDriveStamped>(drive_topic, 1);
 	m_subscription = create_subscription<sensor_msgs::msg::LaserScan>(lidarscan_topic, 1,
 			std::bind(&WallFollow::scan_callback, this, std::placeholders::_1));
-	timer_ = this->create_wall_timer(150ms, std::bind(&WallFollow::timer_callback, this));
+	timer_ = create_wall_timer(150ms, std::bind(&WallFollow::timer_callback, this));
 	// Initialize error array
 	for(int i = 0; i < INTEGRAL_ARR_SIZE; i++) {
 		error_array[i] = 0;
 	}
+	run_controller = true;
 }
 
 // Timer call-back - update the drive command
 void WallFollow::timer_callback() {
-	// Send Ackermann message with new output
-	ackermann_msgs::msg::AckermannDriveStamped drive_msg;
-	drive_msg.drive.speed = speed;
-	drive_msg.drive.steering_angle = new_V_theta;
-	m_drivePub->publish(drive_msg);
-
-	// Update previous with new inputs
-	prev_V_theta = new_V_theta;
-	prev_error = error;
-	error_array[error_i%INTEGRAL_ARR_SIZE] = prev_error;
-	error_i++;
+	run_controller = true;
 }
 
 // Callback function for LaserScan messages
 void WallFollow::scan_callback(const sensor_msgs::msg::LaserScan::ConstSharedPtr scan_msg) {
-	/*
-	Callback function for LaserScan messages. Calculate the error and publish the drive message in this function.
-
-	Args:
-		msg: Incoming LaserScan message
-
-	Returns:
-		None
-
-	* LiDAR goes from +135-deg to -135-deg, where 0 is straight infront of car. We want "0-deg"
-	* to be the right angle from the car, this means we need to grab the measurement 45-deg
-	* (0.7854 rad) from the first measurement.
-	*/
-
-	if(turn_right) {
-		// Use "right side" of car as 0-deg
-		int i_0_deg = 0.7854/scan_msg->angle_increment;
-		double b = scan_msg->ranges[i_0_deg];
-
+	if(run_controller) {
 		/*
-		 * alpha = tan inverse ( a cos(theta) - b/ a sin(theta) )
-		 * AB = b cos(alpha)
-		 *
-		 * We pick theta = 35-deg (0.6109)
-		 *
-		 * Actual error
-		 * AB + AC*sin(alpha)
-		 */
-		double theta = 0.6109;
-		int i_35_deg = theta/scan_msg->angle_increment + i_0_deg;
-		double a = scan_msg->ranges[i_35_deg];
-		double alpha = atan((a*cos(theta) - b)/( a*sin(theta)));
+		Callback function for LaserScan messages. Calculate the error and publish the drive message in this function.
 
-		double AB = b*cos(alpha);
-		double CD = AB + AC*sin(alpha);
+		Args:
+			msg: Incoming LaserScan message
 
-		// Add up cumulative error over time
-		double cumu_error = 0;
-		for(int i = 0; i < INTEGRAL_ARR_SIZE; i++) {
-			cumu_error += error_array[i];
+		Returns:
+			None
+
+		* LiDAR goes from +135-deg to -135-deg, where 0 is straight infront of car. We want "0-deg"
+		* to be the right angle from the car, this means we need to grab the measurement 45-deg
+		* (0.7854 rad) from the first measurement.
+		*/
+		double new_V_theta = 0.0;
+		double error = 0.0;
+
+		if(turn_right) {
+			// Use "right side" of car as 0-deg
+			int i_0_deg = 0.7854/scan_msg->angle_increment;
+			double b = scan_msg->ranges[i_0_deg];
+
+			/*
+			 * alpha = tan inverse ( a cos(theta) - b/ a sin(theta) )
+			 * AB = b cos(alpha)
+			 *
+			 * We pick theta = 35-deg (0.6109)
+			 *
+			 * Actual error
+			 * AB + AC*sin(alpha)
+			 */
+			double theta = 0.6109;
+			int i_35_deg = theta/scan_msg->angle_increment + i_0_deg;
+			double a = scan_msg->ranges[i_35_deg];
+			double alpha = atan((a*cos(theta) - b)/( a*sin(theta)));
+
+			double AB = b*cos(alpha);
+			double CD = AB + AC*sin(alpha);
+
+			// Add up cumulative error over time
+			double cumu_error = 0;
+			for(int i = 0; i < INTEGRAL_ARR_SIZE; i++) {
+				cumu_error += error_array[i];
+			}
+
+			// Run PID
+			error = TARGET-CD;
+			double V_theta = kp*error + kd*(prev_error-error) + ki*cumu_error;
+			// New output
+			new_V_theta = V_theta-prev_V_theta;
+		}
+		else {
+			// Turn left! Use left side of car as 0-deg
+			int i_0_deg = 3.926990817/scan_msg->angle_increment;
+			double b = scan_msg->ranges[i_0_deg];
+
+			/*
+			 * alpha = tan inverse ( a cos(theta) - b/ a sin(theta) )
+			 * AB = b cos(alpha)
+			 *
+			 * We pick theta = 35-deg (0.6109)
+			 *
+			 * Actual error
+			 * AB + AC*sin(alpha)
+			 */
+			double theta = 0.610865238;
+			int i_35_deg = 3.316125579/scan_msg->angle_increment;
+			double a = scan_msg->ranges[i_35_deg];
+			double alpha = atan((a*cos(theta) - b)/( a*sin(theta)));
+
+			double AB = b*cos(alpha);
+			double CD = AB + AC*sin(alpha);
+
+			// Run PID
+			error = TARGET-CD;
+			double V_theta = kp*error + kd*(prev_error-error);
+			// New output
+			new_V_theta = prev_V_theta-V_theta;
 		}
 
-		// Run PID
-		error = TARGET-CD;
-		double V_theta = kp*error + kd*(prev_error-error) + ki*cumu_error;
-		// New output
-		new_V_theta = V_theta-prev_V_theta;
-	}
-	else {
-		// Turn left! Use left side of car as 0-deg
-		int i_0_deg = 3.926990817/scan_msg->angle_increment;
-		double b = scan_msg->ranges[i_0_deg];
+		// Send Ackermann message with new output
+		ackermann_msgs::msg::AckermannDriveStamped drive_msg;
+		drive_msg.drive.speed = speed;
+		drive_msg.drive.steering_angle = new_V_theta;
+		m_drivePub->publish(drive_msg);
 
-		/*
-		 * alpha = tan inverse ( a cos(theta) - b/ a sin(theta) )
-		 * AB = b cos(alpha)
-		 *
-		 * We pick theta = 35-deg (0.6109)
-		 *
-		 * Actual error
-		 * AB + AC*sin(alpha)
-		 */
-		double theta = 0.610865238;
-		int i_35_deg = 3.316125579/scan_msg->angle_increment;
-		double a = scan_msg->ranges[i_35_deg];
-		double alpha = atan((a*cos(theta) - b)/( a*sin(theta)));
+		// Update previous with new inputs
+		prev_V_theta = new_V_theta;
+		prev_error = error;
+		error_array[error_i%INTEGRAL_ARR_SIZE] = prev_error;
+		error_i++;
 
-		double AB = b*cos(alpha);
-		double CD = AB + AC*sin(alpha);
-
-		// Run PID
-		error = TARGET-CD;
-		double V_theta = kp*error + kd*(prev_error-error);
-		// New output
-		new_V_theta = prev_V_theta-V_theta;
+		// Reset timer flag
+		run_controller = false;
 	}
 }
 
