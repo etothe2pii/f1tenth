@@ -25,9 +25,9 @@ class ReactiveFollowGap(Node):
 
         #Some tunable variables
 
-        self.max_distance = 1.5
+        self.max_distance = 3.0
         self.average_window = 3
-        self.obs_rad = 325
+        self.obs_rad = 32.5
         self.car_rad = 25
         self.target_distance = 1.5
         self.speed = 0.5
@@ -133,7 +133,7 @@ class ReactiveFollowGap(Node):
 
         #Find the best point in the gap
 
-        point = self.find_best_point(start, end, ranges)
+        point = self.find_best_point(start, end, proc_ranges)
 
         #Publish Drive message
 
