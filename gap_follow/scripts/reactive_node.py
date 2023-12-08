@@ -25,14 +25,15 @@ class ReactiveFollowGap(Node):
 
         #Some tunable variables
 
-        self.max_distance = 5
+        self.max_distance = 3
         self.average_window = 5
-        self.obs_rad = 50
-        self.car_rad = 10
-        self.target_distance = 2
+        self.obs_rad = 75
+        self.car_rad = 25
+        self.target_distance = 1.5
 
         self.previous_angle = 0
 
+        self.min = 0
 
     def preprocess_lidar(self, ranges):
         """ Preprocess the LiDAR scan array. Expert implementation includes:
@@ -96,8 +97,15 @@ class ReactiveFollowGap(Node):
         Return index of best point in ranges
 	    Naive: Choose the furthest point within ranges and go there
         """
+        farthest = np.argmax(ranges[start_i:end_i]) + start_i
         #return np.argmax(ranges[start_i:end_i]) + start_i
-        return (start_i + end_i) /2
+        dist = end_i - start_i
+        if self.min < start_i:
+            dist = end_i - farthest
+            return end_i - math.floor(dist*0.7)
+
+        dist = farthest - start_i
+        return start_i + math.floor(dist*0.7)
 
     def lidar_callback(self, data):
         """ Process each LiDAR scan as per the Follow Gap algorithm & publish an AckermannDriveStamped Message
@@ -112,9 +120,9 @@ class ReactiveFollowGap(Node):
         #Find closest point to LiDAR
 
         minimum = np.argmin(proc_ranges)
-
+        self.min = minimum
         #Eliminate all points inside 'bubble' (set them to zero) 
-        rad = self.obs_rad * (1/proc_ranges[minimum]) + self.car_rad
+        rad = self.obs_rad + self.car_rad
         proc_ranges[minimum-self.obs_rad:minimum+self.obs_rad] = 0
 
         #Find max length gap
@@ -151,6 +159,8 @@ class ReactiveFollowGap(Node):
         #print(math.floor((-1*math.pi/2 -angle)//increment), data.ranges[math.floor((-1*math.pi/2 -angle)//increment)])
         #print(539, angle + 539 * increment)
         #print(f"i:{point} min:{start},{angle + start * increment:.2f} max:{end},{angle + end*increment:.2f} target:{-1 * (angle + point*increment):.2f} actual:{ack_msg.drive.steering_angle}", end = "\r")
+        
+        print(f"{minimum}, {start}, {end}    ", end = "\r")
         self.driver_pub.publish(ack_msg)
 
 
