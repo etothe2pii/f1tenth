@@ -26,7 +26,7 @@ class ReactiveFollowGap(Node):
         #Some tunable variables
 
         self.max_distance = 3
-        self.average_window = 5
+        self.average_window = 50
         self.obs_rad = 75
         self.car_rad = 25
         self.target_distance = 1.5
@@ -60,7 +60,7 @@ class ReactiveFollowGap(Node):
         # ranges_ind = np.nonzero(free_space_ranges > self.target_distance)
         # diffs = np.diff(ranges_ind)
         # ind = np.nonzero(diffs > 1 or diffs < 1)
-        free_space_ranges[free_space_ranges < self.target_distance] = 0
+        #free_space_ranges[free_space_ranges < self.target_distance] = 0
         max_width = 0
         start = 0
         end = 0
@@ -97,16 +97,16 @@ class ReactiveFollowGap(Node):
         Return index of best point in ranges
 	    Naive: Choose the furthest point within ranges and go there
         """
-        farthest = np.argmax(ranges[start_i:end_i]) + start_i
-        #return np.argmax(ranges[start_i:end_i]) + start_i
-        dist = end_i - start_i
-        if self.min < start_i:
-            dist = end_i - farthest
-            return end_i - math.floor(dist*0.7)
-
-        dist = farthest - start_i
-        return start_i + math.floor(dist*0.7)
-
+#        farthest = np.argmax(ranges[start_i:end_i]) + start_i
+        return np.argmax(ranges[start_i:end_i]) + start_i
+#        dist = end_i - start_i
+#        if self.min < start_i:
+#            dist = end_i - farthest
+#            return end_i - math.floor(dist*0.7)
+#
+#        dist = farthest - start_i
+#        return start_i + math.floor(dist*0.7)
+        #return (start_i + end_i)/2
     def lidar_callback(self, data):
         """ Process each LiDAR scan as per the Follow Gap algorithm & publish an AckermannDriveStamped Message
         """
