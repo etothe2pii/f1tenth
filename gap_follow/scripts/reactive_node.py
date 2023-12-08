@@ -25,11 +25,12 @@ class ReactiveFollowGap(Node):
 
         #Some tunable variables
 
-        self.max_distance = 3
-        self.average_window = 50
-        self.obs_rad = 75
+        self.max_distance = 1
+        self.average_window = 3
+        self.obs_rad = 306
         self.car_rad = 25
         self.target_distance = 1.5
+        self.speed = 0.5
 
         self.previous_angle = 0
 
@@ -131,7 +132,7 @@ class ReactiveFollowGap(Node):
 
         #Find the best point in the gap
 
-        point = self.find_best_point(start, end, proc_ranges)
+        point = self.find_best_point(start, end, ranges)
 
         #Publish Drive message
 
@@ -146,7 +147,7 @@ class ReactiveFollowGap(Node):
         #ack_msg.drive.steering_angle_velocity = 1.5
         difference = abs(ack_msg.drive.steering_angle - self.previous_angle) + 1 # + 1 to prevent div by 0 errors
         #ack_msg.drive.speed = (1/difference)*0.1
-        ack_msg.drive.speed = 0.5
+        ack_msg.drive.speed = self.speed
         self.previous_angle = ack_msg.drive.steering_angle
         #print(angle, data.angle_max, increment, point)
         #print(angle/math.pi, data.angle_max/math.pi, increment, point)
@@ -160,7 +161,7 @@ class ReactiveFollowGap(Node):
         #print(539, angle + 539 * increment)
         #print(f"i:{point} min:{start},{angle + start * increment:.2f} max:{end},{angle + end*increment:.2f} target:{-1 * (angle + point*increment):.2f} actual:{ack_msg.drive.steering_angle}", end = "\r")
         
-        print(f"{minimum}, {start}, {end}    ", end = "\r")
+        print(f"{proc_ranges[point]:.2f}    ", end = "\r")
         self.driver_pub.publish(ack_msg)
 
 
