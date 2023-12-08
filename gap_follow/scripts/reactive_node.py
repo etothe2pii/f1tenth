@@ -112,17 +112,9 @@ class ReactiveFollowGap(Node):
         #Find closest point to LiDAR
 
         minimum = np.argmin(proc_ranges)
-        s = ""
-        c = 0
-        for r in data.ranges:
-            s += f"{r:.2f} "
-            if c == 9:
-                s += "\n"
-                c = 0
-            c += 1
-        print(s)
-        #Eliminate all points inside 'bubble' (set them to zero) 
 
+        #Eliminate all points inside 'bubble' (set them to zero) 
+        rad = self.obs_rad * (1/proc_ranges[minimum]) + self.car_rad
         proc_ranges[minimum-self.obs_rad:minimum+self.obs_rad] = 0
 
         #Find max length gap
