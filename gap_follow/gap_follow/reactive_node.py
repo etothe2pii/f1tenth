@@ -4,6 +4,7 @@ from rclpy.node import Node
 import numpy as np
 from sensor_msgs.msg import LaserScan
 from ackermann_msgs.msg import AckermannDriveStamped, AckermannDrive
+import math
 
 class ReactiveFollowGap(Node):
     """ 
@@ -27,8 +28,9 @@ class ReactiveFollowGap(Node):
         self.average_window = 5
         self.obs_rad = 10
         self.car_rad = 8
-
         self.target_distance = 2
+
+        self.previous_angle = 0
 
 
     def preprocess_lidar(self, ranges):
@@ -60,7 +62,6 @@ class ReactiveFollowGap(Node):
         end = 0
         in_range = False
         tmp_start = 0
-        tmp_end = 0
         for i in range(len(free_space_ranges)):
             if not in_range:
                 if free_space_ranges[i] !=0:
@@ -70,15 +71,17 @@ class ReactiveFollowGap(Node):
                 if free_space_ranges[i] == 0:
                     in_range = False
                     
-                    if i -1 -tmp_start > max_width:
+                    if i -tmp_start > max_width:
                         start = tmp_start
                         end = i-1
-                        max_width = i - 1 - tmp_start
+                        max_width = i - tmp_start
         
         if free_space_ranges[-1] != 0:
-            if i -1 -tmp_start > max_width:
+            if i - tmp_start > max_width:
                     start = tmp_start
                     end = i-1
+
+        return start, end
             
 
 
@@ -90,12 +93,15 @@ class ReactiveFollowGap(Node):
         Return index of best point in ranges
 	    Naive: Choose the furthest point within ranges and go there
         """
-        return None
+        return np.argmax(ranges[start_i:end_i])
 
     def lidar_callback(self, data):
         """ Process each LiDAR scan as per the Follow Gap algorithm & publish an AckermannDriveStamped Message
         """
         ranges = data.ranges
+
+
+
         proc_ranges = self.preprocess_lidar(ranges)
         
         # TODO:
@@ -109,11 +115,28 @@ class ReactiveFollowGap(Node):
 
         #Find max length gap
 
-        self.find_max_gap(proc_ranges) 
+        start, end = self.find_max_gap(proc_ranges) 
 
-        #Find the best point in the gap 
+        #Find the best point in the gap
+
+        point = self.find_best_point(start, end, proc_ranges)
 
         #Publish Drive message
+
+        angle = data.angle_min
+        increment = data.angle_increment
+
+        ack_msg = AckermannDriveStamped()
+        ack_msg.header.stamp = self.get_clock().now().to_msg()
+        ack_msg.steering_angle = angle + point * increment
+        ack_msg.steering_angle_velocity = 1.5
+        difference = abs(ack_msg.steering_angle - self.previous_angle) + 1 # + 1 to prevent div by 0 errors
+        ack_msg.speed = (1/difference)*5
+
+        self.previous_angle = ack_msg.steering_angle
+        self.driver_pub.publish(ack_msg)
+
+
 
 
 def main(args=None):
