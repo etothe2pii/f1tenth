@@ -141,7 +141,7 @@ class ReactiveFollowGap(Node):
         minimum = np.argmin(proc_ranges)
         self.min = minimum
         #Eliminate all points inside 'bubble' (set them to zero) 
-        rad = math.floor(self.obs_rad/max(0.1, proc_ranges[minimum]) + self.car_rad)
+        rad = math.floor(self.obs_rad*10 + self.car_rad)
         proc_ranges[minimum-rad:minimum+rad] = 0
 
         #Find max length gap
