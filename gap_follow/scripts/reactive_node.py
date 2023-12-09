@@ -116,7 +116,8 @@ class ReactiveFollowGap(Node):
             last = ranges[i]
 
         f_2 = np.argmax(ranges[start_i:end_i]) + start_i
-        if ranges.count(ranges[f_2]) > 1:
+        maxes = np.where(ranges == maximum)
+        if len(maxes) > 1:
             maximum = ranges[f_2]
             maxes = np.where(ranges == maximum)
 
