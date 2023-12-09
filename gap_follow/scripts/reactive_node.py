@@ -102,6 +102,7 @@ class ReactiveFollowGap(Node):
         Return index of best point in ranges
 	    Naive: Choose the furthest point within ranges and go there
         """
+        end_i = end_i +1
         farthest = np.argmax(ranges[start_i:end_i]) + start_i
 
         last = ranges[start_i]
