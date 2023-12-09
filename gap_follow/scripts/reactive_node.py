@@ -229,6 +229,14 @@ class ReactiveFollowGap(Node):
 
         proc_ranges[minimum] = 0.0
 
+        h_left = math.floor(abs(data.angle_min - -1* math.pi/2)/data.angle_interval)
+        h_right = math.floor(abs(data.angle_min - math.pi/2)/data.angle_interval)
+
+        print(h_left, h_right)
+
+        proc_ranges[:h_left] = 0
+        proc_ranges[h_right:] = 0
+
 
         #Find max length gap
 
