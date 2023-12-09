@@ -204,6 +204,8 @@ class ReactiveFollowGap(Node):
 
         start, end = self.find_max_gap(proc_ranges) 
 
+        print(start,end)
+
         #Find the best point in the gap
 
         point = self.find_best_point(start, end, proc_ranges)
