@@ -33,7 +33,7 @@ class ReactiveFollowGap(Node):
         self.car_rad = 50
         self.target_distance = 1.5
         self.speed = 0.5
-        self.disparity_th = 0.25
+        self.disparity_th = 0.5
 
         self.previous_angle = 0
 
@@ -234,8 +234,8 @@ class ReactiveFollowGap(Node):
 
         print(f"left:{h_left}, right:{h_right}, length{len(proc_ranges)}, sum:{np.sum(proc_ranges)}")
 
-        # proc_ranges[:h_left] = 0.0
-        # proc_ranges[h_right:] = 0.0
+        proc_ranges[:h_left] = 0.0
+        proc_ranges[h_right:] = 0.0
 
         print(proc_ranges)
         #Find max length gap
