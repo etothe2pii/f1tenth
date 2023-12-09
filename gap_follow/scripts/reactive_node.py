@@ -167,7 +167,7 @@ class ReactiveFollowGap(Node):
 
         i = 1
 
-        from_center = data.angle_increment = abs(math.floor((data.angle_min + data.angle_max)/2) - minimum)
+        from_center = data.angle_increment * abs(math.floor((data.angle_min + data.angle_max)/2) - minimum)
         while not left or not right:
 
             if not left:
