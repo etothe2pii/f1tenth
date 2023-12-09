@@ -220,6 +220,12 @@ class ReactiveFollowGap(Node):
 
         start, end = self.find_max_gap(proc_ranges) 
 
+        if start < 175:
+            start = 175
+
+        if end > 800:
+            end = 800
+
         print(start,end, "   ")
 
         #Find the best point in the gap
