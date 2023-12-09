@@ -28,12 +28,12 @@ class ReactiveFollowGap(Node):
         #Some tunable variables
 
         self.max_distance = 5.0
-        self.average_window = 5
-        self.obs_rad = 1.0
+        self.average_window = 10
+        self.obs_rad = 1.25
         self.car_rad = 0.75
-        self.target_distance = 1.5
-        self.speed = 0.5
-        self.disparity_th = 0.2
+        self.target_distance = 1.25
+        self.speed = 1.0
+        self.disparity_th = 0.5
 
         self.previous_angle = 0
 
@@ -288,7 +288,7 @@ class ReactiveFollowGap(Node):
             ack_msg.drive.steering_angle = 1* (angle + point * increment)
             
             #ack_msg.drive.steering_angle = -1.0
-            #ack_msg.drive.steering_angle_velocity = 1.5
+            ack_msg.drive.steering_angle_velocity = 0.1
             difference = abs(ack_msg.drive.steering_angle - self.previous_angle) + 1 # + 1 to prevent div by 0 errors
             #ack_msg.drive.speed = (1/difference)*0.1
             ack_msg.drive.speed = self.speed
