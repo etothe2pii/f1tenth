@@ -113,7 +113,29 @@ class ReactiveFollowGap(Node):
         """
         if not (start_i < end_i):
             return -1
+        
+
         farthest = np.argmax(ranges[start_i:end_i]) + start_i
+        maxes = np.where(ranges[start_i:end_i] ==  maximum)[0]
+        if len(maxes) > 1:            
+
+            closest = 0
+            dist = 10000000
+            target = (end_i + start_i)/2
+
+            for m in maxes:
+                m = m  + start_i
+                if m > start_i and m < end_i:
+                    if abs(target - m) < dist:
+                        closest = m
+                        dist = abs(target - m)
+                else:
+                    print("Please no")
+            
+            farthest = closest
+
+
+        
 
         last = ranges[start_i]
         for i in range(max(farthest - self.car_rad, start_i), farthest):
@@ -132,25 +154,6 @@ class ReactiveFollowGap(Node):
         f_2 = np.argmax(ranges[start_i:end_i]) + start_i
         maximum =np.max(ranges[start_i:end_i])
 
-
-        
-        maxes = np.where(ranges[start_i:end_i] ==  maximum)[0]
-        if len(maxes) > 1:            
-
-            closest = 0
-            dist = 10000000
-            target = (end_i + start_i)/2
-
-            for m in maxes:
-                m = m  + start_i
-                if m > start_i and m < end_i:
-                    if abs(target - m) < dist:
-                        closest = m
-                        dist = abs(target - m)
-                else:
-                    print("Please no")
-            print(abs(f_2 - target), dist)
-            return closest
 
         return f_2
 #        dist = end_i - start_i
