@@ -230,7 +230,7 @@ class ReactiveFollowGap(Node):
         # if end > 800:
         #     end = 800
 
-        print(start,end, "   ")
+        #print(start,end, "   ")
 
         #Find the best point in the gap
 
@@ -262,9 +262,9 @@ class ReactiveFollowGap(Node):
             #print(math.floor((-1*math.pi/2 -angle)//increment), data.ranges[math.floor((-1*math.pi/2 -angle)//increment)])
             #print(539, angle + 539 * increment)
             #print(f"i:{point} min:{start},{angle + start * increment:.2f} max:{end},{angle + end*increment:.2f} target:{-1 * (angle + point*increment):.2f} actual:{ack_msg.drive.steering_angle}", end = "\r")
-            print(f"{proc_ranges[point]:.2f} {(time.time() - start_callback)*1000:.2f}   ", end = "\r")
+            #print(f"{proc_ranges[point]:.2f} {(time.time() - start_callback)*1000:.2f}   ", end = "\r")
             self.driver_pub.publish(ack_msg)
-            
+
         data.ranges = list(proc_ranges)
         self.lidar_pub.publish(data)
 
