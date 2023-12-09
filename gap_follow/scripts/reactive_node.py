@@ -28,7 +28,7 @@ class ReactiveFollowGap(Node):
 
         self.max_distance = 5.0
         self.average_window = 5
-        self.obs_rad = 25
+        self.obs_rad = 0.5
         self.car_rad = 50
         self.target_distance = 1.5
         self.speed = 0.5
@@ -174,7 +174,7 @@ class ReactiveFollowGap(Node):
                 if minimum + i >= len(proc_ranges):
                     left = True
 
-                elif math.sqrt(proc_ranges[minimum + i]**2 + proc_ranges[minimum] - 2*proc_ranges[minimum + i]*proc_ranges[minimum] * math.cos(i * data.angle_increment)) <= self.obs_rad + self.car_rad:
+                elif math.sqrt(proc_ranges[minimum + i]**2 + proc_ranges[minimum] - 2*proc_ranges[minimum + i]*proc_ranges[minimum] * math.cos(i * data.angle_increment)) <= self.obs_rad:
                     proc_ranges[minimum + i] = 0
 
                 else:
@@ -185,7 +185,7 @@ class ReactiveFollowGap(Node):
                 if minimum - i < 0:
                     right = True
 
-                elif math.sqrt(proc_ranges[minimum - i]**2 + proc_ranges[minimum] - 2*proc_ranges[minimum - i]*proc_ranges[minimum] * math.cos(i * data.angle_increment)) <= self.obs_rad + self.car_rad:
+                elif math.sqrt(proc_ranges[minimum - i]**2 + proc_ranges[minimum] - 2*proc_ranges[minimum - i]*proc_ranges[minimum] * math.cos(i * data.angle_increment)) <= self.obs_rad:
                     proc_ranges[minimum - i] = 0
 
                 else:
