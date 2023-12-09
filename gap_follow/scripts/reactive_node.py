@@ -234,8 +234,8 @@ class ReactiveFollowGap(Node):
 
         print(f"left:{h_left}, right:{h_right}, length{len(proc_ranges)}, sum:{np.sum(proc_ranges)}")
 
-        proc_ranges[:h_left] = 0.0
-        proc_ranges[h_right:] = 0.0
+        # proc_ranges[:h_left] = 0.0
+        # proc_ranges[h_right:] = 0.0
 
         
         #Find max length gap
