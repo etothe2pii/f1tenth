@@ -167,6 +167,7 @@ class ReactiveFollowGap(Node):
 
         i = 1
 
+        from_center = data.angle_increment = abs(math.floor((data.angle_min + data.angle_max)/2) - minimum)
         while not left or not right:
 
             if not left:
@@ -174,7 +175,10 @@ class ReactiveFollowGap(Node):
                 if minimum + i >= len(proc_ranges):
                     left = True
 
-                elif math.sqrt(proc_ranges[minimum + i]**2 + proc_ranges[minimum] - 2*proc_ranges[minimum + i]*proc_ranges[minimum] * math.cos(i * data.angle_increment)) <= self.obs_rad:
+                # elif math.sqrt(proc_ranges[minimum + i]**2 + proc_ranges[minimum] - 2*proc_ranges[minimum + i]*proc_ranges[minimum] * math.cos(i * data.angle_increment)) <= self.obs_rad:
+                #     proc_ranges[minimum + i] = 0
+
+                elif proc_ranges[minimum + i] * math.sin(data.angle_increment * abs(math.floor((data.angle_min + data.angle_max)/2) - (minimum + i))) - proc_ranges[minimum] * math.sin(from_center) <= self.obs_rad:
                     proc_ranges[minimum + i] = 0
 
                 else:
@@ -185,7 +189,10 @@ class ReactiveFollowGap(Node):
                 if minimum - i < 0:
                     right = True
 
-                elif math.sqrt(proc_ranges[minimum - i]**2 + proc_ranges[minimum] - 2*proc_ranges[minimum - i]*proc_ranges[minimum] * math.cos(i * data.angle_increment)) <= self.obs_rad:
+                # elif math.sqrt(proc_ranges[minimum - i]**2 + proc_ranges[minimum] - 2*proc_ranges[minimum - i]*proc_ranges[minimum] * math.cos(i * data.angle_increment)) <= self.obs_rad:
+                #     proc_ranges[minimum - i] = 0
+
+                elif proc_ranges[minimum - i] * math.sin(data.angle_increment * abs(math.floor((data.angle_min + data.angle_max)/2) - (minimum + i))) - proc_ranges[minimum] * math.sin(from_center) <= self.obs_rad:
                     proc_ranges[minimum - i] = 0
 
                 else:
@@ -227,12 +234,6 @@ class ReactiveFollowGap(Node):
         #print(math.floor((-1*math.pi/2 -angle)//increment), data.ranges[math.floor((-1*math.pi/2 -angle)//increment)])
         #print(539, angle + 539 * increment)
         #print(f"i:{point} min:{start},{angle + start * increment:.2f} max:{end},{angle + end*increment:.2f} target:{-1 * (angle + point*increment):.2f} actual:{ack_msg.drive.steering_angle}", end = "\r")
-        if time.time() - start_callback > data.scan_time:
-            print("WARNING: It is too slow")
-
-        if data.scan_time == 0:
-            print("nvm it's 0 :/")
-        print(data.scan_time, data.time_increment)
         print(f"{proc_ranges[point]:.2f} {(time.time() - start_callback)*1000:.2f}   ", end = "\r")
         self.driver_pub.publish(ack_msg)
 
