@@ -232,7 +232,7 @@ class ReactiveFollowGap(Node):
         h_left = math.floor(abs(data.angle_min - -1* math.pi/2)/data.angle_increment)
         h_right = math.floor(abs(data.angle_min - math.pi/2)/data.angle_increment)
 
-        print(f"left:{h_left}, right:{h_right}, length{len(proc_ranges)}")
+        print(f"left:{h_left}, right:{h_right}, length{len(proc_ranges)}, sum:{np.sum(proc_ranges)}")
 
         proc_ranges[:h_left] = 0.0
         proc_ranges[h_right:] = 0.0
