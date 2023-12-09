@@ -192,7 +192,7 @@ class ReactiveFollowGap(Node):
                 #     proc_ranges[minimum + i] = 0
 
                 elif abs(proc_ranges[minimum + i] * math.sin(data.angle_increment * abs(math.floor((data.angle_min + data.angle_max)/2) - (minimum + i))) - proc_ranges[minimum] * math.sin(from_center)) <= self.obs_rad:
-                    proc_ranges[minimum + i] = 0
+                    proc_ranges[minimum + i] = 0.0
 
                 else:
                     left = True
@@ -206,14 +206,14 @@ class ReactiveFollowGap(Node):
                 #     proc_ranges[minimum - i] = 0
 
                 elif abs(proc_ranges[minimum - i] * math.sin(data.angle_increment * abs(math.floor((data.angle_min + data.angle_max)/2) - (minimum - i))) - proc_ranges[minimum] * math.sin(from_center)) <= self.obs_rad:
-                    proc_ranges[minimum - i] = 0
+                    proc_ranges[minimum - i] = 0.0
 
                 else:
                     right = True
 
             i += 1
 
-        proc_ranges[minimum] = 0
+        proc_ranges[minimum] = 0.0
 
 
         #Find max length gap
