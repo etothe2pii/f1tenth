@@ -182,7 +182,7 @@ class ReactiveFollowGap(Node):
 
             if not right:
 
-                if minimum - i >= len(proc_ranges):
+                if minimum - i < 0:
                     right = True
 
                 elif math.sqrt(proc_ranges[minimum - i]**2 + proc_ranges[minimum] - 2*proc_ranges[minimum - i]*proc_ranges[minimum] * math.cos(i * data.angle_increment)) <= self.obs_rad + self.car_rad:
