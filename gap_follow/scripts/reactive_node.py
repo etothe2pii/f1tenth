@@ -169,7 +169,7 @@ class ReactiveFollowGap(Node):
             if ranges[i] == val:
                 maxes.append(i)
 
-        return math.floor(len(maxes)/2)
+        return maxes[math.floor(len(maxes)/2)]
         # farthest = np.argmax(ranges[start_i:end_i]) + start_i
         
 
