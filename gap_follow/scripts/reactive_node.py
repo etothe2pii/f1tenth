@@ -27,7 +27,7 @@ class ReactiveFollowGap(Node):
 
         self.max_distance = 5.0
         self.average_window = 5
-        self.obs_rad = 20
+        self.obs_rad = 25
         self.car_rad = 50
         self.target_distance = 1.5
         self.speed = 0.5
@@ -148,8 +148,7 @@ class ReactiveFollowGap(Node):
 
 
         proc_ranges = self.preprocess_lidar(ranges)
-        
-        # TODO:
+
         #Find closest point to LiDAR
 
         minimum = np.argmin(proc_ranges)
