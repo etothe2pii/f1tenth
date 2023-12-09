@@ -29,7 +29,7 @@ class ReactiveFollowGap(Node):
 
         self.max_distance = 5.0
         self.average_window = 5
-        self.obs_rad = 25
+        self.obs_rad = 1.5
         self.car_rad = 25
         self.target_distance = 1.5
         self.speed = 0.5
@@ -189,46 +189,46 @@ class ReactiveFollowGap(Node):
         
         self.min = minimum
         #Eliminate all points inside 'bubble' (set them to zero) 
-        rad = math.floor(self.obs_rad*10 + self.car_rad)
-        proc_ranges[max(minimum-rad,0):min(minimum+rad, len(proc_ranges))] = 0
+        # rad = math.floor(self.obs_rad*10 + self.car_rad)
+        # proc_ranges[max(minimum-rad,0):min(minimum+rad, len(proc_ranges))] = 0
 
         left = False
         right = False
 
         i = 1
 
-        # from_center = data.angle_increment * abs(math.floor((data.angle_min + data.angle_max)/2) - minimum)
-        # while not left or not right:
+        from_center = data.angle_increment * abs(math.floor((data.angle_min + data.angle_max)/2) - minimum)
+        while not left or not right:
 
-        #     if not left:
+            if not left:
 
-        #         if minimum + i >= len(proc_ranges):
-        #             left = True
+                if minimum + i >= len(proc_ranges):
+                    left = True
 
-        #         elif math.sqrt(proc_ranges[minimum + i]**2 + proc_ranges[minimum]**2 - 2*proc_ranges[minimum + i]*proc_ranges[minimum] * math.cos(i * data.angle_increment)) <= self.obs_rad:
-        #             proc_ranges[minimum + i] = 0
+                # elif math.sqrt(proc_ranges[minimum + i]**2 + proc_ranges[minimum]**2 - 2*proc_ranges[minimum + i]*proc_ranges[minimum] * math.cos(i * data.angle_increment)) <= self.obs_rad:
+                #     proc_ranges[minimum + i] = 0
 
-        #         # elif abs(proc_ranges[minimum + i] * math.sin(data.angle_increment * abs(math.floor((data.angle_min + data.angle_max)/2) - (minimum + i))) - proc_ranges[minimum] * math.sin(from_center)) <= self.obs_rad:
-        #         #     proc_ranges[minimum + i] = 0.0
+                elif abs(proc_ranges[minimum + i] * math.sin(data.angle_increment * abs(math.floor((data.angle_min + data.angle_max)/2) - (minimum + i))) - proc_ranges[minimum] * math.sin(from_center)) <= self.obs_rad:
+                    proc_ranges[minimum + i] = 0.0
 
-        #         else:
-        #             left = True
+                else:
+                    left = True
 
-        #     if not right:
+            if not right:
 
-        #         if minimum - i < 0:
-        #             right = True
+                if minimum - i < 0:
+                    right = True
 
-        #         elif math.sqrt(proc_ranges[minimum - i]**2 + proc_ranges[minimum]**2 - 2*proc_ranges[minimum - i]*proc_ranges[minimum] * math.cos(i * data.angle_increment)) <= self.obs_rad:
-        #             proc_ranges[minimum - i] = 0
+                # elif math.sqrt(proc_ranges[minimum - i]**2 + proc_ranges[minimum]**2 - 2*proc_ranges[minimum - i]*proc_ranges[minimum] * math.cos(i * data.angle_increment)) <= self.obs_rad:
+                #     proc_ranges[minimum - i] = 0
 
-        #         # elif abs(proc_ranges[minimum - i] * math.sin(data.angle_increment * abs(math.floor((data.angle_min + data.angle_max)/2) - (minimum - i))) - proc_ranges[minimum] * math.sin(from_center)) <= self.obs_rad:
-        #         #     proc_ranges[minimum - i] = 0.0
+                elif abs(proc_ranges[minimum - i] * math.sin(data.angle_increment * abs(math.floor((data.angle_min + data.angle_max)/2) - (minimum - i))) - proc_ranges[minimum] * math.sin(from_center)) <= self.obs_rad:
+                    proc_ranges[minimum - i] = 0.0
 
-        #         else:
-        #             right = True
+                else:
+                    right = True
 
-        #     i += 1
+            i += 1
 
         proc_ranges[minimum] = 0.0
 
