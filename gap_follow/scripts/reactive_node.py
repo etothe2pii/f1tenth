@@ -140,14 +140,14 @@ class ReactiveFollowGap(Node):
 
         last = ranges[start_i]
         for i in range(max(farthest - self.car_rad, start_i), farthest):
-            if ranges[start_i] - last > self.disparity_th:
+            if abs(ranges[start_i] - last) > self.disparity_th:
                 ranges[i:min(i + self.car_rad, end_i)] = ranges[i]
 
             last = ranges[i]
 
         last = ranges[end_i]
         for i in range(min(farthest + self.car_rad, end_i), farthest, -1):
-            if ranges[start_i] - last > self.disparity_th:
+            if abs(ranges[start_i] - last) > self.disparity_th:
                 ranges[max(farthest - self.car_rad, start_i):i] = ranges[i]
 
             last = ranges[i]
