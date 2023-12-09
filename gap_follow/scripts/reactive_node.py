@@ -178,7 +178,7 @@ class ReactiveFollowGap(Node):
                 # elif math.sqrt(proc_ranges[minimum + i]**2 + proc_ranges[minimum] - 2*proc_ranges[minimum + i]*proc_ranges[minimum] * math.cos(i * data.angle_increment)) <= self.obs_rad:
                 #     proc_ranges[minimum + i] = 0
 
-                elif proc_ranges[minimum + i] * math.sin(data.angle_increment * abs(math.floor((data.angle_min + data.angle_max)/2) - (minimum + i))) - proc_ranges[minimum] * math.sin(from_center) <= self.obs_rad:
+                elif abs(proc_ranges[minimum + i] * math.sin(data.angle_increment * abs(math.floor((data.angle_min + data.angle_max)/2) - (minimum + i))) - proc_ranges[minimum] * math.sin(from_center)) <= self.obs_rad:
                     proc_ranges[minimum + i] = 0
 
                 else:
@@ -192,7 +192,7 @@ class ReactiveFollowGap(Node):
                 # elif math.sqrt(proc_ranges[minimum - i]**2 + proc_ranges[minimum] - 2*proc_ranges[minimum - i]*proc_ranges[minimum] * math.cos(i * data.angle_increment)) <= self.obs_rad:
                 #     proc_ranges[minimum - i] = 0
 
-                elif proc_ranges[minimum - i] * math.sin(data.angle_increment * abs(math.floor((data.angle_min + data.angle_max)/2) - (minimum - i))) - proc_ranges[minimum] * math.sin(from_center) <= self.obs_rad:
+                elif abs(proc_ranges[minimum - i] * math.sin(data.angle_increment * abs(math.floor((data.angle_min + data.angle_max)/2) - (minimum - i))) - proc_ranges[minimum] * math.sin(from_center)) <= self.obs_rad:
                     proc_ranges[minimum - i] = 0
 
                 else:
