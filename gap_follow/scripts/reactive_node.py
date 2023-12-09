@@ -25,8 +25,8 @@ class ReactiveFollowGap(Node):
 
         #Some tunable variables
 
-        self.max_distance = 3.0
-        self.average_window = 3
+        self.max_distance = 5.0
+        self.average_window = 5
         self.obs_rad = 32.5
         self.car_rad = 25
         self.target_distance = 1.5
@@ -85,7 +85,7 @@ class ReactiveFollowGap(Node):
         if free_space_ranges[-1] != 0:
             if i - tmp_start > max_width:
                     start = tmp_start
-                    end = i-1
+                    end = i
 
         return start, end
             
@@ -102,15 +102,18 @@ class ReactiveFollowGap(Node):
         farthest = np.argmax(ranges[start_i:end_i]) + start_i
 
         last = ranges[start_i]
-        streak = 0
         for i in range(max(farthest - self.car_rad, start_i), farthest):
             if ranges[start_i] - last > self.disparity_th:
                 ranges[i:min(i + self.car_rad, end_i)] = ranges[i]
+
+            last = ranges[i]
 
         last = ranges[end_i]
         for i in range(min(farthest + self.car_rad, end_i), farthest, -1):
             if ranges[start_i] - last > self.disparity_th:
                 ranges[max(farthest - self.car_rad, start_i):i] = ranges[i]
+
+            last = ranges[i]
 
         
 
