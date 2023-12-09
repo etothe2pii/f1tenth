@@ -156,7 +156,7 @@ class ReactiveFollowGap(Node):
         
 
 
-        return f_2
+        return farthest
 #        dist = end_i - start_i
 #        if self.min < start_i:
 #            dist = end_i - farthest
