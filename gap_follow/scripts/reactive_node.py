@@ -97,7 +97,7 @@ class ReactiveFollowGap(Node):
         if count == 0:
             print("\nNO POSITIVES")
         elif start == end:
-            print("\nWhat?")
+            print(f"\nWhat?{count}")
 
         return start, end
             
