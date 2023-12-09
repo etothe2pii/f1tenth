@@ -237,7 +237,7 @@ class ReactiveFollowGap(Node):
         proc_ranges[:h_left] = 0.0
         proc_ranges[h_right:] = 0.0
 
-        print(proc_ranges)
+        print(proc_ranges[h_left:h_right])
         #Find max length gap
 
         start, end = self.find_max_gap(proc_ranges) 
