@@ -72,7 +72,10 @@ class ReactiveFollowGap(Node):
         end = 0
         in_range = False
         tmp_start = 0
+        count = 0
         for i in range(len(free_space_ranges)):
+            if free_space_ranges[i] !=0:
+                count += 1
             if not in_range:
                 if free_space_ranges[i] !=0:
                     in_range = True
@@ -81,7 +84,7 @@ class ReactiveFollowGap(Node):
                 if free_space_ranges[i] == 0 and in_range:
                     in_range = False
                     
-                    if i -tmp_start > max_width:
+                    if i - tmp_start > max_width:
                         start = tmp_start
                         end = i-1
                         max_width = i - tmp_start
