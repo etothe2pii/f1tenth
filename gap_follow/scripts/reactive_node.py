@@ -227,7 +227,7 @@ class ReactiveFollowGap(Node):
         #print(math.floor((-1*math.pi/2 -angle)//increment), data.ranges[math.floor((-1*math.pi/2 -angle)//increment)])
         #print(539, angle + 539 * increment)
         #print(f"i:{point} min:{start},{angle + start * increment:.2f} max:{end},{angle + end*increment:.2f} target:{-1 * (angle + point*increment):.2f} actual:{ack_msg.drive.steering_angle}", end = "\r")
-        if time.tim() - start_callback > data.scan_time:
+        if time.time() - start_callback > data.scan_time:
             print("WARNING: It is too slow")
         print(data.scan_time, data.time_increment)
         print(f"{proc_ranges[point]:.2f} {time.time() - start_callback:.2f}   ", end = "\r")
