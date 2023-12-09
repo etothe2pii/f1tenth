@@ -233,7 +233,7 @@ class ReactiveFollowGap(Node):
         if data.scan_time == 0:
             print("nvm it's 0 :/")
         print(data.scan_time, data.time_increment)
-        print(f"{proc_ranges[point]:.2f} {time.time() - start_callback:.2f}   ", end = "\r")
+        print(f"{proc_ranges[point]:.2f} {(time.time() - start_callback)*1000:.2f}   ", end = "\r")
         self.driver_pub.publish(ack_msg)
 
 
