@@ -29,7 +29,7 @@ class ReactiveFollowGap(Node):
 
         self.max_distance = 5.0
         self.average_window = 5
-        self.obs_rad = 2.0
+        self.obs_rad = 1.0
         self.car_rad = 50
         self.target_distance = 1.5
         self.speed = 0.5
@@ -264,8 +264,7 @@ class ReactiveFollowGap(Node):
             #print(f"i:{point} min:{start},{angle + start * increment:.2f} max:{end},{angle + end*increment:.2f} target:{-1 * (angle + point*increment):.2f} actual:{ack_msg.drive.steering_angle}", end = "\r")
             print(f"{proc_ranges[point]:.2f} {(time.time() - start_callback)*1000:.2f}   ", end = "\r")
             self.driver_pub.publish(ack_msg)
-        proc_ranges[:start] = 0
-        proc_ranges[end:] = 0
+            
         data.ranges = list(proc_ranges)
         self.lidar_pub.publish(data)
 
