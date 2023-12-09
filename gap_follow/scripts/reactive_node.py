@@ -30,7 +30,7 @@ class ReactiveFollowGap(Node):
         self.max_distance = 5.0
         self.average_window = 5
         self.obs_rad = 1.5
-        self.car_rad = 25
+        self.car_rad = 0.75
         self.target_distance = 1.5
         self.speed = 0.5
         self.disparity_th = 1.0
@@ -84,7 +84,7 @@ class ReactiveFollowGap(Node):
             else:
                 if free_space_ranges[i] == 0 and in_range:
                     in_range = False
-                    
+                    self.obs_rad
                     if i - tmp_start > max_width:
                         start = tmp_start
                         end = i-1
@@ -102,6 +102,48 @@ class ReactiveFollowGap(Node):
 
         return start, end
             
+
+    def obliterate_radius(self, center, rad, ranges, data, val = 0.0):
+
+        left, right = False, False
+
+        i = 1
+
+        from_center = data.angle_increment * abs(math.floor((data.angle_min + data.angle_max)/2) - center)
+        while not left or not right:
+
+            if not left:
+
+                if center + i >= len(ranges):
+                    left = True
+
+                # elif math.sqrt(ranges[center + i]**2 + ranges[center]**2 - 2*ranges[center + i]*ranges[center] * math.cos(i * data.angle_increment)) <= rad:
+                #     ranges[center + i] = 0
+
+                elif abs(ranges[center + i] * math.sin(data.angle_increment * abs(math.floor((data.angle_min + data.angle_max)/2) - (center + i))) - ranges[center] * math.sin(from_center)) <= rad:
+                    ranges[center + i] = val
+
+                else:
+                    left = True
+
+            if not right:
+
+                if center - i < 0:
+                    right = True
+
+                # elif math.sqrt(ranges[center - i]**2 + ranges[center]**2 - 2*ranges[center - i]*ranges[center] * math.cos(i * data.angle_increment)) <= rad:
+                #     ranges[center - i] = 0
+
+                elif abs(ranges[center - i] * math.sin(data.angle_increment * abs(math.floor((data.angle_min + data.angle_max)/2) - (center - i))) - ranges[center] * math.sin(from_center)) <= rad:
+                    ranges[center - i] = val
+
+                else:
+                    right = True
+
+            i += 1
+
+        return i
+
 
 
         #return  max(len(x) for x in ranges)
@@ -136,13 +178,7 @@ class ReactiveFollowGap(Node):
         #     farthest = closest
 
         #Find disparities
-        i = 1
-        while i < len(ranges):
-            if abs(ranges[i] - ranges[i-1]) > self.disparity_th:
-                ranges[max(i-self.car_rad, 0):min(i+self.car_rad, len(ranges)-1)] = ranges[i] if ranges[i] < ranges[i-1] else ranges[i-1]
-                i += self.car_rad + 1
-
-            i += 1
+        
 
         
 
@@ -202,43 +238,16 @@ class ReactiveFollowGap(Node):
         # rad = math.floor(self.obs_rad*10 + self.car_rad)
         # proc_ranges[max(minimum-rad,0):min(minimum+rad, len(proc_ranges))] = 0
 
-        left = False
-        right = False
+        self.obliterate_radius(minimum, self.obs_rad, proc_ranges, data)
 
         i = 1
-
-        from_center = data.angle_increment * abs(math.floor((data.angle_min + data.angle_max)/2) - minimum)
-        while not left or not right:
-
-            if not left:
-
-                if minimum + i >= len(proc_ranges):
-                    left = True
-
-                # elif math.sqrt(proc_ranges[minimum + i]**2 + proc_ranges[minimum]**2 - 2*proc_ranges[minimum + i]*proc_ranges[minimum] * math.cos(i * data.angle_increment)) <= self.obs_rad:
-                #     proc_ranges[minimum + i] = 0
-
-                elif abs(proc_ranges[minimum + i] * math.sin(data.angle_increment * abs(math.floor((data.angle_min + data.angle_max)/2) - (minimum + i))) - proc_ranges[minimum] * math.sin(from_center)) <= self.obs_rad:
-                    proc_ranges[minimum + i] = 0.0
-
-                else:
-                    left = True
-
-            if not right:
-
-                if minimum - i < 0:
-                    right = True
-
-                # elif math.sqrt(proc_ranges[minimum - i]**2 + proc_ranges[minimum]**2 - 2*proc_ranges[minimum - i]*proc_ranges[minimum] * math.cos(i * data.angle_increment)) <= self.obs_rad:
-                #     proc_ranges[minimum - i] = 0
-
-                elif abs(proc_ranges[minimum - i] * math.sin(data.angle_increment * abs(math.floor((data.angle_min + data.angle_max)/2) - (minimum - i))) - proc_ranges[minimum] * math.sin(from_center)) <= self.obs_rad:
-                    proc_ranges[minimum - i] = 0.0
-
-                else:
-                    right = True
+        while i < len(proc_ranges):
+            if abs(proc_ranges[i] - proc_ranges[i-1]) > self.disparity_th:
+                i += self.obliterate_radius(i, self.car_rad, proc_ranges, data, val = proc_ranges[i] if proc_ranges[i] < proc_ranges[i-1] else proc_ranges[i-1]) + 1
+                # proc_ranges[max(i-self.car_rad, 0):min(i+self.car_rad, len(proc_ranges)-1)] = proc_ranges[i] if proc_ranges[i] < proc_ranges[i-1] else proc_ranges[i-1]
 
             i += 1
+        
 
         proc_ranges[minimum] = 0.0
 
