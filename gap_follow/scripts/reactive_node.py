@@ -133,7 +133,7 @@ class ReactiveFollowGap(Node):
 
 
         
-        maxes = np.where(ranges[start_i:end_i] >  np.max(ranges[start_i:end_i]))[0]
+        maxes = np.where(ranges[start_i:end_i] >=  np.max(ranges[start_i:end_i]))[0]
         print(maxes)
         if len(maxes) > 1:
             print("\nLots of max!\n")
