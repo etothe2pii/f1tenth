@@ -146,6 +146,8 @@ class ReactiveFollowGap(Node):
                     if abs(target - m) < dist:
                         closest = m
                         dist = abs(target - m)
+                else:
+                    print("Please no")
             print(abs(f_2 - target), dist)
             return closest
 
