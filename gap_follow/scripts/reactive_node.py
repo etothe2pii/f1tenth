@@ -91,7 +91,6 @@ class ReactiveFollowGap(Node):
             
 
 
-
         #return  max(len(x) for x in ranges)
     
     def find_best_point(self, start_i, end_i, ranges):
@@ -99,38 +98,38 @@ class ReactiveFollowGap(Node):
         Return index of best point in ranges
 	    Naive: Choose the furthest point within ranges and go there
         """
-        farthest = np.argmax(ranges[start_i:end_i]) + start_i
+        # farthest = np.argmax(ranges[start_i:end_i]) + start_i
 
-        last = ranges[start_i]
-        for i in range(max(farthest - self.car_rad, start_i), farthest):
-            if ranges[start_i] - last > self.disparity_th:
-                ranges[i:min(i + self.car_rad, end_i)] = ranges[i]
+        # last = ranges[start_i]
+        # for i in range(max(farthest - self.car_rad, start_i), farthest):
+        #     if ranges[start_i] - last > self.disparity_th:
+        #         ranges[i:min(i + self.car_rad, end_i)] = ranges[i]
 
-            last = ranges[i]
+        #     last = ranges[i]
 
-        last = ranges[end_i]
-        for i in range(min(farthest + self.car_rad, end_i), farthest, -1):
-            if ranges[start_i] - last > self.disparity_th:
-                ranges[max(farthest - self.car_rad, start_i):i] = ranges[i]
+        # last = ranges[end_i]
+        # for i in range(min(farthest + self.car_rad, end_i), farthest, -1):
+        #     if ranges[start_i] - last > self.disparity_th:
+        #         ranges[max(farthest - self.car_rad, start_i):i] = ranges[i]
 
-            last = ranges[i]
+        #     last = ranges[i]
 
         f_2 = np.argmax(ranges[start_i:end_i]) + start_i
-        maxes = np.where(ranges ==  ranges[f_2])
-        if len(maxes) > 1:
-            maximum = ranges[f_2]
-            maxes = np.where(ranges == maximum)
+        # maxes = np.where(ranges ==  ranges[f_2])
+        # if len(maxes) > 1:
+        #     maximum = ranges[f_2]
+        #     maxes = np.where(ranges == maximum)
 
-            closest = 0
-            dist = end_i - start_i
-            target = (end_i + start_i)/2
+        #     closest = 0
+        #     dist = end_i - start_i
+        #     target = (end_i + start_i)/2
 
-            for m in maxes:
-                if abs(target - m) < dist:
-                    closest = m
-                    dist = abs(target - m)
+        #     for m in maxes:
+        #         if abs(target - m) < dist:
+        #             closest = m
+        #             dist = abs(target - m)
 
-            return closest
+        #     return closest
 
         return f_2
 #        dist = end_i - start_i
