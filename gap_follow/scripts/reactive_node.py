@@ -220,11 +220,11 @@ class ReactiveFollowGap(Node):
 
         start, end = self.find_max_gap(proc_ranges) 
 
-        if start < 175:
-            start = 175
+        # if start < 175:
+        #     start = 175
 
-        if end > 800:
-            end = 800
+        # if end > 800:
+        #     end = 800
 
         print(start,end, "   ")
 
@@ -260,8 +260,8 @@ class ReactiveFollowGap(Node):
             #print(f"i:{point} min:{start},{angle + start * increment:.2f} max:{end},{angle + end*increment:.2f} target:{-1 * (angle + point*increment):.2f} actual:{ack_msg.drive.steering_angle}", end = "\r")
             print(f"{proc_ranges[point]:.2f} {(time.time() - start_callback)*1000:.2f}   ", end = "\r")
             self.driver_pub.publish(ack_msg)
-        proc_ranges[:point-5] = 0
-        proc_ranges[point+5:] = 0
+        proc_ranges[:start] = 0
+        proc_ranges[end:] = 0
         data.ranges = list(proc_ranges)
         self.lidar_pub.publish(data)
 
