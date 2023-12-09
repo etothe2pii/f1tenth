@@ -33,7 +33,7 @@ class ReactiveFollowGap(Node):
         self.car_rad = 50
         self.target_distance = 1.5
         self.speed = 0.5
-        self.disparity_th = 0.5
+        self.disparity_th = 1.0
 
         self.previous_angle = 0
 
