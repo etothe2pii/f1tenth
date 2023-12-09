@@ -22,6 +22,7 @@ class ReactiveFollowGap(Node):
         #Pubs and Subs
 
         self.driver_pub =  self.create_publisher(AckermannDriveStamped, drive_topic, 10)
+        self.lidar_pub = self.create_publisher(LaserScan, "/fixed_scan", 10)
         self.scanner_sub = self.create_subscription(LaserScan, lidarscan_topic, self.lidar_callback, 10)
 
         #Some tunable variables
@@ -111,10 +112,7 @@ class ReactiveFollowGap(Node):
 	    Naive: Choose the furthest point within ranges and go there
         """
         if start_i == end_i:
-            end_i += 1
-            if end_i >= len(ranges):
-                start_i += 1
-                end_i -= 1
+            return -1
         farthest = np.argmax(ranges[start_i:end_i]) + start_i
 
         last = ranges[start_i]
@@ -217,6 +215,7 @@ class ReactiveFollowGap(Node):
 
         proc_ranges[minimum] = 0
 
+
         #Find max length gap
 
         start, end = self.find_max_gap(proc_ranges) 
@@ -228,34 +227,36 @@ class ReactiveFollowGap(Node):
         point = self.find_best_point(start, end, proc_ranges)
 
         #Publish Drive message
+        if point != -1:
+            angle = data.angle_min
+            increment = data.angle_increment
 
-        angle = data.angle_min
-        increment = data.angle_increment
+            ack_msg = AckermannDriveStamped()
+            ack_msg.header.stamp = self.get_clock().now().to_msg()
+            ack_msg.drive.steering_angle = 1* (angle + point * increment)
+            
+            #ack_msg.drive.steering_angle = -1.0
+            #ack_msg.drive.steering_angle_velocity = 1.5
+            difference = abs(ack_msg.drive.steering_angle - self.previous_angle) + 1 # + 1 to prevent div by 0 errors
+            #ack_msg.drive.speed = (1/difference)*0.1
+            ack_msg.drive.speed = self.speed
+            self.previous_angle = ack_msg.drive.steering_angle
+            #print(angle, data.angle_max, increment, point)
+            #print(angle/math.pi, data.angle_max/math.pi, increment, point)
+            #print(angle + point * increment, (angle+point*increment)/math.pi)
+            #print(angle, increment)
+            #print(0, data.ranges[0])
+            #print(len(data.ranges) - 1, data.ranges[-1])
+            #print(math.floor(abs(angle)//increment), data.ranges[math.floor(abs(angle)//increment)])
+            #print(math.floor((math.pi/2-angle)//increment), data.ranges[math.floor((math.pi/2-angle)//increment)])
+            #print(math.floor((-1*math.pi/2 -angle)//increment), data.ranges[math.floor((-1*math.pi/2 -angle)//increment)])
+            #print(539, angle + 539 * increment)
+            #print(f"i:{point} min:{start},{angle + start * increment:.2f} max:{end},{angle + end*increment:.2f} target:{-1 * (angle + point*increment):.2f} actual:{ack_msg.drive.steering_angle}", end = "\r")
+            print(f"{proc_ranges[point]:.2f} {(time.time() - start_callback)*1000:.2f}   ", end = "\r")
+            self.driver_pub.publish(ack_msg)
 
-        ack_msg = AckermannDriveStamped()
-        ack_msg.header.stamp = self.get_clock().now().to_msg()
-        ack_msg.drive.steering_angle = 1* (angle + point * increment)
-        
-        #ack_msg.drive.steering_angle = -1.0
-        #ack_msg.drive.steering_angle_velocity = 1.5
-        difference = abs(ack_msg.drive.steering_angle - self.previous_angle) + 1 # + 1 to prevent div by 0 errors
-        #ack_msg.drive.speed = (1/difference)*0.1
-        ack_msg.drive.speed = self.speed
-        self.previous_angle = ack_msg.drive.steering_angle
-        #print(angle, data.angle_max, increment, point)
-        #print(angle/math.pi, data.angle_max/math.pi, increment, point)
-        #print(angle + point * increment, (angle+point*increment)/math.pi)
-        #print(angle, increment)
-        #print(0, data.ranges[0])
-        #print(len(data.ranges) - 1, data.ranges[-1])
-        #print(math.floor(abs(angle)//increment), data.ranges[math.floor(abs(angle)//increment)])
-        #print(math.floor((math.pi/2-angle)//increment), data.ranges[math.floor((math.pi/2-angle)//increment)])
-        #print(math.floor((-1*math.pi/2 -angle)//increment), data.ranges[math.floor((-1*math.pi/2 -angle)//increment)])
-        #print(539, angle + 539 * increment)
-        #print(f"i:{point} min:{start},{angle + start * increment:.2f} max:{end},{angle + end*increment:.2f} target:{-1 * (angle + point*increment):.2f} actual:{ack_msg.drive.steering_angle}", end = "\r")
-        print(f"{proc_ranges[point]:.2f} {(time.time() - start_callback)*1000:.2f}   ", end = "\r")
-        self.driver_pub.publish(ack_msg)
-
+        data.ranges = proc_ranges
+        self.lidar_pub.publish(data)
 
 
 
