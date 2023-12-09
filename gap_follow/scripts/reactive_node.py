@@ -115,7 +115,7 @@ class ReactiveFollowGap(Node):
             return -1
         
 
-        farthest = np.argmax(ranges[start_i:end_i]) + start_i
+        # farthest = np.argmax(ranges[start_i:end_i]) + start_i
         # maximum =np.max(ranges[start_i:end_i])
         # maxes = np.where(ranges[start_i:end_i] ==  maximum)[0]
         # if len(maxes) > 1:            
@@ -135,24 +135,29 @@ class ReactiveFollowGap(Node):
             
         #     farthest = closest
 
+        #Find disparities
+
+        for i in range(1, len(ranges)):
+            if abs(ranges[i] - ranges[i-1]) > self.disparity_th:
+                ranges[max(i-self.car_rad, 0):min(i+self.car_rad, len(ranges)-1)] = ranges[i] if ranges[i] < ranges[i-1] else ranges[i-1]
 
         
 
-        last = ranges[start_i]
-        for i in range(max(farthest - self.car_rad, start_i), farthest):
-            if abs(ranges[start_i] - last) > self.disparity_th:
-                ranges[i:min(i + self.car_rad, end_i)] = ranges[i]
+        # last = ranges[start_i]
+        # for i in range(max(farthest - self.car_rad, start_i), farthest):
+        #     if abs(ranges[start_i] - last) > self.disparity_th:
+        #         ranges[i:min(i + self.car_rad, end_i)] = ranges[i]
 
-            last = ranges[i]
+        #     last = ranges[i]
 
-        last = ranges[end_i]
-        for i in range(min(farthest + self.car_rad, end_i), farthest, -1):
-            if abs(ranges[start_i] - last) > self.disparity_th:
-                ranges[max(farthest - self.car_rad, start_i):i] = ranges[i]
+        # last = ranges[end_i]
+        # for i in range(min(farthest + self.car_rad, end_i), farthest, -1):
+        #     if abs(ranges[start_i] - last) > self.disparity_th:
+        #         ranges[max(farthest - self.car_rad, start_i):i] = ranges[i]
 
-            last = ranges[i]
+        #     last = ranges[i]
 
-        f_2 = np.argmax(ranges[start_i:end_i]) + start_i
+        farthest = np.argmax(ranges[start_i:end_i]) + start_i
         
 
 
