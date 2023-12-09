@@ -6,6 +6,7 @@ import numpy as np
 from sensor_msgs.msg import LaserScan
 from ackermann_msgs.msg import AckermannDriveStamped, AckermannDrive
 import math
+import time
 
 class ReactiveFollowGap(Node):
     """ 
@@ -146,6 +147,7 @@ class ReactiveFollowGap(Node):
     def lidar_callback(self, data):
         """ Process each LiDAR scan as per the Follow Gap algorithm & publish an AckermannDriveStamped Message
         """
+        start_callback = time.time()
         ranges = data.ranges
 
 
@@ -226,7 +228,7 @@ class ReactiveFollowGap(Node):
         #print(539, angle + 539 * increment)
         #print(f"i:{point} min:{start},{angle + start * increment:.2f} max:{end},{angle + end*increment:.2f} target:{-1 * (angle + point*increment):.2f} actual:{ack_msg.drive.steering_angle}", end = "\r")
         
-        print(f"{proc_ranges[point]:.2f}    ", end = "\r")
+        print(f"{proc_ranges[point]:.2f} {time.time() - start_callback:.2f}   ", end = "\r")
         self.driver_pub.publish(ack_msg)
 
 
