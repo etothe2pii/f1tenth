@@ -46,7 +46,7 @@ class ReactiveFollowGap(Node):
         """
         proc_ranges = np.array(ranges)
 
-        proc_ranges[proc_ranges==float("-inf")] = 0
+        proc_ranges[proc_ranges==float("-inf")] = 0.0
         proc_ranges[proc_ranges==float("inf")] = self.max_distance
 
         #Clip high values
