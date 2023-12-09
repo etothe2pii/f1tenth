@@ -142,6 +142,7 @@ class ReactiveFollowGap(Node):
             target = (end_i + start_i)/2
 
             for m in maxes:
+                m = m  + start_i
                 if m > start_i and m < end_i:
                     if abs(target - m) < dist:
                         closest = m
