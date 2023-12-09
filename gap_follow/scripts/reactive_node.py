@@ -255,7 +255,7 @@ class ReactiveFollowGap(Node):
             print(f"{proc_ranges[point]:.2f} {(time.time() - start_callback)*1000:.2f}   ", end = "\r")
             self.driver_pub.publish(ack_msg)
 
-        data.ranges = [proc_ranges[point]]
+        data.ranges = list(proc_ranges[point-5: point + 5])
         self.lidar_pub.publish(data)
 
 
