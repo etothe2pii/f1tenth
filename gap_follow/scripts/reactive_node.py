@@ -136,10 +136,13 @@ class ReactiveFollowGap(Node):
         #     farthest = closest
 
         #Find disparities
-
-        for i in range(1, len(ranges)):
+        i = 1
+        while i < len(ranges):
             if abs(ranges[i] - ranges[i-1]) > self.disparity_th:
                 ranges[max(i-self.car_rad, 0):min(i+self.car_rad, len(ranges)-1)] = ranges[i] if ranges[i] < ranges[i-1] else ranges[i-1]
+                i += self.car_rad + 1
+
+            i += 1
 
         
 
