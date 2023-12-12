@@ -12,9 +12,9 @@
 #define PI			3.14159265
 #define BUBBLE_R	0.5
 #define PUSH_SIZE	0
-#define WALL_GAP_1	0.5
+#define WALL_GAP_1	0.75
 #define WALL_TURN_1	0.174533
-#define WALL_GAP_2	0.3
+#define WALL_GAP_2	0.5
 #define WALL_TURN_2	0.436332
 
 class ReactiveFollowGap : public rclcpp::Node {
@@ -138,23 +138,23 @@ void ReactiveFollowGap::lidar_callback(const sensor_msgs::msg::LaserScan::ConstS
 	if(scan_msg->ranges[i_0_deg ] < WALL_GAP_2) {
 		// TURN LEFT!
 		angle = 0 + WALL_TURN_1;
-		speed = std::min(1.0, speed);
+		speed = std::min(1.5, speed);
 	}
 	else if(scan_msg->ranges[i_0_deg ] < WALL_GAP_1) {
 		// Turn left!
 		angle += WALL_TURN_1;
-		speed = std::min(2.5, speed);
+//		speed = std::min(2.5, speed);
 	}
 
 	if(scan_msg->ranges[i_180_deg ] < WALL_GAP_2) {
 		// TURN RIGHT!
 		angle = 0 - WALL_TURN_1;
-		speed = std::min(1.0, speed);
+		speed = std::min(1.5, speed);
 	}
 	else if(scan_msg->ranges[i_180_deg ] < WALL_GAP_1) {
 		// Turn right!
 		angle -= WALL_TURN_1;
-		speed = std::min(2.5, speed);
+//		speed = std::min(2.5, speed);
 	}
 
 //	printf("Drive towards point %d,", best_point);
